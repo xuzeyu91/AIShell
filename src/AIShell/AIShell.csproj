@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Chat\" />
+    <Folder Include="Pages\Shell\" />
     <Folder Include="Services\" />
   </ItemGroup>
   

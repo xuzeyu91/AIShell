@@ -1,15 +1,9 @@
 ﻿[
   {
-    "path": "/chat",
-    "name": "对话",
-    "key": "chat",
+    "path": "/shell",
+    "name": "Shell",
+    "key": "shell",
     "icon": "aliwangwang"
-  },
-  {
-    "path": "/agentlist",
-    "name": "Agent配置",
-    "key": "agent",
-    "icon": "reddit"
   },
   {
     "path": "/model",
