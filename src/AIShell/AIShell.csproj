@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Shell\" />
     <Folder Include="Services\" />
   </ItemGroup>
   
