@@ -1,8 +1,14 @@
-﻿@namespace AIShell.Pages.Model
+﻿@namespace AIShell.Pages.Shell
 @using Domain.Domain.Model.Enum
+@using BlazorComponents.Terminal
 @page "/shell"
-
-<h3>ShellPage</h3>
+<PageContainer Title="命令工具">
+    <ChildContent>
+        <Card>
+            <BlazorTerminal @ref="blazorTerminal" Style="height:600px;" OnCommandEnter="commandEnter" OnAnswerEnter="answerEnter"></BlazorTerminal>
+        </Card>
+    </ChildContent>
+</PageContainer>
 
 @code {
 
