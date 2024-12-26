@@ -1,0 +1,20 @@
+﻿[
+  {
+    "path": "/chat",
+    "name": "对话",
+    "key": "chat",
+    "icon": "aliwangwang"
+  },
+  {
+    "path": "/agentlist",
+    "name": "Agent配置",
+    "key": "agent",
+    "icon": "reddit"
+  },
+  {
+    "path": "/model",
+    "name": "模型设置",
+    "key": "model",
+    "icon": "appstore-add"  
+  }
+]
