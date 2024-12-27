@@ -26,12 +26,12 @@ namespace AIShell.Pages.Shell
 
                 var para = blazorTerminal.RespondText("");
                 para.AddTextLine("-=-=".Repeat(20));
-                para.AddTextLine(@"     ___   _      _____   _    _          _         _");
-                para.AddTextLine(@"    /   | | |    / ____| | |  | |        | |       | |");
-                para.AddTextLine(@"   / /| | | |   | (___   | |__| |  ___   | |       | |");
-                para.AddTextLine(@"  / /_| | | |    \___ \  | |__| | / _ \  | |       | |");
-                para.AddTextLine(@" / ____ | | |    ____) | | |  | ||  __/  | |___    | |___");
-                para.AddTextLine(@"/_/   |_| |_|    |_____/ |_|  |_| \___|  |______\  |______\");
+                para.AddTextLine(@"     ___   _      _____   _    _    ______    _         _");
+                para.AddTextLine(@"    /   | | |    / ____| | |  | |  |  ____|  | |       | |");
+                para.AddTextLine(@"   / /| | | |   | (___   | |__| |  | |____   | |       | |");
+                para.AddTextLine(@"  / /_| | | |    \___ \  | |__| |  |  ____|  | |       | |");
+                para.AddTextLine(@" / ____ | | |    ____) | | |  | |  | |____   | |___    | |___");
+                para.AddTextLine(@"/_/   |_| |_|    |_____/ |_|  |_|  |______|  |______\  |______\");
                 para.AddTextLine(@" ");
                 para.AddTextLine("- ".Repeat(30));
                 para.AddTextLine("AI Shell 是一款通过AI来智能提示操作的Shell工具");
