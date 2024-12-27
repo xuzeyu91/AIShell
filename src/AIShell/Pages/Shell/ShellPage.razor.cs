@@ -34,7 +34,7 @@ namespace AIShell.Pages.Shell
                 para.AddTextLine(@"/_/   |_| |_|    |_____/ |_|  |_| \___|  |______\  |______\");
                 para.AddTextLine(@" ");
                 para.AddTextLine("- ".Repeat(30));
-                para.AddTextLine("AI Shell 是一款通过AI来只能提示操作的Shell工具");
+                para.AddTextLine("AI Shell 是一款通过AI来智能提示操作的Shell工具");
                 para.AddTextLine("-=-=".Repeat(20));
                 //
                 blazorTerminal.ConfigPrompt(new CommandPrompt()
