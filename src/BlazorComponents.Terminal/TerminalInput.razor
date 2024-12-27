@@ -1,0 +1,65 @@
+﻿@inherits TerminalComponentBase
+
+<input type='@(IsPassword?"password":"text")' @ref="_command_input" @onkeydown="_inputKeyDown" @onfocusin="_focusIn" @bind="InputValue" @bind:event="oninput" style="@Style"
+       autocomplete="false" auto-complete="new-password" spellcheck="false" autofocus="true" autocapitalize="off" class="bc-terminal-input" />
+
+
+@code {
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _command_input.FocusAsync(false);
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    [Parameter]
+    public bool IsPassword { get; set; } = false;
+
+    [Parameter]
+    public string InputValue { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> InputValueChanged { get; set; }
+
+    //[Parameter]
+    //public EventCallback<KeyboardEventArgs> OnEnter { get; set; }
+
+    [Parameter]
+    public EventCallback<TerminalInputEventArgs> OnKeyDown { get; set; }
+
+    public void Focus()
+    {
+        _command_input.FocusAsync(false);
+    }
+
+
+    private async Task _inputKeyDown(KeyboardEventArgs args)
+    {
+        await InputValueChanged.InvokeAsync(InputValue);
+        //if (args.Key == "Enter")
+        //{
+        //    await OnEnter.InvokeAsync(args);
+        //}
+        //else
+        //{
+        //    await OnKeyDown.InvokeAsync(args);
+        //}
+        var eventArgs = new TerminalInputEventArgs(this, args, InputValue);
+        await OnKeyDown.InvokeAsync(eventArgs);
+
+
+    }
+
+
+    private async Task _focusIn(FocusEventArgs args)
+    {
+
+    }
+
+
+    private ElementReference _command_input;
+
+}

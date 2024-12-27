@@ -1,0 +1,50 @@
+﻿
+
+@font-face {
+    font-family: CascadiaCode;
+    src: url(fonts/CascadiaCode.ttf);
+    display: swap;
+}
+
+
+.bc-terminal-theme {
+    font-family: CascadiaCode, monospace;
+    font-style: normal;
+    font-weight: 500;
+    background-color: rgb(29, 42, 53);
+    color: rgb(203, 213, 225);
+}
+
+    .bc-terminal-theme > .bc-paragraph {
+    }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-prompt > .bc-prompt-name {
+            color: rgb(255, 157, 0);
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-prompt > .bc-prompt-spr1 {
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-prompt > .bc-prompt-host {
+            color: rgb(5, 206, 145);
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-prompt > .bc-prompt-spr2 {
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-prompt > .bc-prompt-path {
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-prompt > .bc-prompt-pmt {
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-command-content {
+        }
+
+        .bc-terminal-theme > .bc-paragraph > .bc-terminal-input {
+            color: rgb(203, 213, 225);
+            caret-color: rgb(5, 206, 145);
+            font-family: inherit;
+            font-size: 100%;
+            padding: 0;
+        }

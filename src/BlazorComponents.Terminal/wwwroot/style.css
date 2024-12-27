@@ -1,0 +1,80 @@
+﻿
+/*根class*/
+.bc-terminal {
+    padding: 0.75rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: black;
+}
+
+
+    .bc-terminal > .bc-paragraph {
+        display: flex;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    .bc-terminal .bc-terminal-input {
+        -webkit-box-flex: 1;
+        flex-grow: 1;
+        overflow: visible;
+        margin: 0px;
+        border-width: 0px;
+        border-style: solid;
+        display: inline-block;
+        background-color: transparent;
+        outline: none;
+        margin-left: 0.5rem;
+    }
+
+        .bc-terminal .bc-terminal-input[type="password"]::-ms-reveal{
+            display:none;
+        }
+
+
+        .bc-terminal > .bc-paragraph-command {
+            flex-direction: row;
+        }
+
+        .bc-terminal > .bc-paragraph-command > .bc-prompt {
+            display: inline-block;
+            flex-shrink: 1;
+            margin-right: 0.25rem;
+        }
+
+        .bc-terminal > .bc-paragraph-command > .bc-command-content {
+            margin-left: 0.5rem;
+        }
+
+        .bc-terminal > .bc-paragraph-command > .bc-terminal-input {
+        }
+
+
+
+
+
+    .bc-terminal > .bc-paragraph-response {
+        flex-direction: column;
+    }
+
+
+        .bc-terminal > .bc-paragraph-response > .bc-content-text {
+            margin: 0;
+            white-space:pre-wrap;
+        }
+
+        .bc-terminal > .bc-paragraph-response > .bc-content-html {
+        }
+
+        .bc-terminal > .bc-paragraph-response > .bc-answer-prompt {
+            display: flex;
+        }
+
+            .bc-terminal > .bc-paragraph-response > .bc-answer-prompt .bc-answer-content {
+                display: inline-block;
+                margin-left: 0.5rem;
+            }
+
+            .bc-terminal > .bc-paragraph-response > .bc-answer-prompt > .bc-terminal-input {
+            }

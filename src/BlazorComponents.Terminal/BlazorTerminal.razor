@@ -1,0 +1,350 @@
+﻿@inherits TerminalComponentBase
+
+<div class="bc-terminal bc-terminal-theme" style="@Style" @onclick="_foucs">
+
+    @foreach (var tp in this._paragraphs)
+    {
+        @if (tp.Type == eParagraphType.Command)
+        {
+            <div class="bc-paragraph bc-paragraph-command">
+                <span class="bc-prompt">
+                    @if (tp.Prompt is not null)
+                    {
+                        @if (!string.IsNullOrEmpty(tp.Prompt.Name))
+                        {
+                            <span class="bc-prompt-name">@tp.Prompt.Name</span>
+                        }
+                        @if (!tp.Prompt.Separator1.IsEmtpyOrWhiteSpace())
+                        {
+                            <span class="bc-prompt-spr1">@tp.Prompt.Separator1</span>
+                        }
+                        @if (!string.IsNullOrEmpty(tp.Prompt.Host))
+                        {
+                            <span class="bc-prompt-host">@tp.Prompt.Host</span>
+                        }
+                        @if (!tp.Prompt.Separator2.IsEmtpyOrWhiteSpace())
+                        {
+                            <span class="bc-prompt-spr2">@tp.Prompt.Separator2</span>
+                        }
+                        @if (!string.IsNullOrEmpty(tp.Prompt.Path))
+                        {
+                            <span class="bc-prompt-path">@tp.Prompt.Path</span>
+                        }
+                        @if (!tp.Prompt.Prompt.IsEmtpyOrWhiteSpace())
+                        {
+                            <span class="bc-prompt-pmt">@tp.Prompt.Prompt</span>
+                        }
+                    }
+                </span>
+                @if (tp.IsReading)
+                {
+                    <TerminalInput @ref="_commandInput" @bind-InputValue="tp.Command" IsPassword="tp.IsReadingPassword" OnKeyDown="_commandKeyDown">
+                    </TerminalInput>
+                }
+                else
+                {
+                    <span class="bc-command-content">@tp.Command</span>
+                }
+            </div>
+        }
+        else if (tp.Type == eParagraphType.Response)
+        {
+            <div class="bc-paragraph bc-paragraph-response">
+                @switch (tp.Format)
+                {
+                    case eResponseFormat.Text:
+                        @foreach (string line in tp.TextLines)
+                        {
+                            <p class="bc-content-text">@line</p>
+                        }
+                        break;
+                    case eResponseFormat.Html:
+                    case eResponseFormat.Image:
+                        <div class="bc-content-html">
+                            @tp.Html.ToRawHtml()
+                        </div>
+                        break;
+
+                }
+                @if (tp.IsReading)
+                {
+                    <div class="bc-answer-prompt">@tp.Prompt.AnswerPrompt<TerminalInput @ref="_answerInput" @bind-InputValue="tp.Answer" IsPassword="tp.IsReadingPassword" OnKeyDown="_answerKeyDown"></TerminalInput></div>
+                }
+                else if (!string.IsNullOrEmpty(tp.Answer))
+                {
+                    <span class="bc-answer-prompt">@tp.Prompt.AnswerPrompt<span class="bc-answer-content">@(tp.IsReadingPassword ? "[******]" : @tp.Answer)</span> </span>
+                }
+            </div>
+        }
+    }
+
+</div>
+
+
+
+@code {
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return base.OnParametersSetAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+
+
+    //命令输入事件
+    [Parameter]
+    public EventCallback<TerminalEventArgs> OnCommandEnter { get; set; }
+
+    [Parameter]
+    public EventCallback<TerminalEventArgs> OnAnswerEnter { get; set; }
+
+    //enter时不触发
+    [Parameter]
+    public EventCallback<TerminalEventArgs> OnCommandKeyDown { get; set; }
+
+    //enter时不触发
+    [Parameter]
+    public EventCallback<TerminalEventArgs> OnAnswerKeyDown { get; set; }
+
+
+    //添加内容, 返回的对象用于之后可能的更新
+    //显示非command内容
+    internal TerminalParagraph Respond(eResponseFormat format, string content, string[] textlines, bool autoReturn = false, bool needInput = false, bool isPassword = false)
+    {
+        //新增前取消原有 paragraph 读取状态
+        if (_currentParagraph is not null)
+        {
+            _currentParagraph.IsReading = false;
+        }
+
+        var par = new TerminalParagraph(this)
+            {
+                Id = Guid.NewGuid(),
+                Type = eParagraphType.Response,
+                Command = string.Empty,
+                Html = content,
+                Format = format,
+                IsReading = needInput,
+                IsReadingPassword = isPassword,
+                Prompt = _template_prompt,
+            };
+
+        if (textlines is not null)
+        {
+            par.TextLines.AddRange(textlines);
+        }
+
+        _currentParagraph = par;
+
+        _paragraphs.Add(_currentParagraph);
+
+
+        if (par.IsReading)
+        {
+            this.StateHasChanged();
+        }
+        else if (autoReturn)
+        {
+            //直接return
+            this.Return();
+        }
+        else
+        {
+            this.StateHasChanged();
+        }
+
+        _foucs();
+        return _currentParagraph;
+    }
+
+
+    internal void UpdateUI()
+    {
+        this.StateHasChanged();
+    }
+
+
+
+
+    //获取当前段落
+    public TerminalParagraph GetCurrentParagraph()
+    {
+        return _currentParagraph;
+    }
+
+
+    public TerminalParagraph RespondText(string[] textlines, bool autoReturn = false, bool needInput = false, bool isPassword = false)
+    {
+        return Respond(eResponseFormat.Text, "", textlines, autoReturn, needInput, isPassword);
+    }
+
+
+    public TerminalParagraph RespondText(string text, bool autoReturn = false, bool needInput = false, bool isPassword = false)
+    {
+        var textlines = new string[] { text };
+        return Respond(eResponseFormat.Text, "", textlines, autoReturn, needInput, isPassword);
+    }
+
+
+    public TerminalParagraph RespondHtml(string html, bool autoReturn = false, bool needInput = false, bool isPassword = false)
+    {
+        return Respond(eResponseFormat.Html, html, null, autoReturn, needInput, isPassword);
+    }
+
+
+    public TerminalParagraph RespondImage(string imageurl, int width = 0, bool autoReturn = false, bool needInput = false, bool isPassword = false)
+    {
+        var w_style = width == 0 ? "auto" : width.ToString();
+        var html = $"<img src='{imageurl}' style='width:{w_style}' ></img>";
+
+        return Respond(eResponseFormat.Image, html, null, autoReturn, needInput, isPassword);
+    }
+
+    //返回,直接更新当前段落为命令段落
+    public void Return()
+    {
+        var prompt = new CommandPrompt()
+            {
+                Name = _template_prompt.Name,
+                Host = _template_prompt.Host,
+                Path = _template_prompt.Path,
+                Separator1 = _template_prompt.Separator1,
+                Separator2 = _template_prompt.Separator2,
+                Prompt = _template_prompt.Prompt,
+
+            };
+
+        if (_currentParagraph is not null)
+        {
+            _currentParagraph.IsReading = false;
+        }
+
+        _currentParagraph = new TerminalParagraph(this)
+            {
+                Command = "",
+                Prompt = prompt,
+                Id = Guid.NewGuid(),
+                IsReading = true,
+                Type = eParagraphType.Command,
+            };
+
+        _paragraphs.Add(_currentParagraph);
+
+        this.StateHasChanged();
+
+        _foucs();
+
+    }
+
+    //清空内容
+    public void Clear()
+    {
+        _paragraphs.Clear();
+        this.Return();
+    }
+
+    //配置
+    public void ConfigPrompt(CommandPrompt prompt)
+    {
+        _template_prompt = prompt;
+    }
+
+
+    public string Version()
+    {
+        return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+    }
+
+
+
+    //private async Task _commandEnter(string input)
+    //{
+    //    var terminalEventArgs = new TerminalEventArgs(this, _commandInput., _currentParagraph);
+
+    //    await OnCommandEnter.InvokeAsync(terminalEventArgs);
+    //}
+
+    //private async Task _answerEnter(string input)
+    //{
+    //    var terminalEventArgs = new TerminalEventArgs(this, input, _currentParagraph);
+
+    //    await OnAnswerEnter.InvokeAsync(terminalEventArgs);
+    //}
+
+
+    private async Task _commandKeyDown(TerminalInputEventArgs eventArgs)
+    {
+        var terminalEventArgs = new TerminalEventArgs(this, eventArgs.InputValue, eventArgs, _currentParagraph);
+
+        if (eventArgs.KeyboardEventArgs.Key == "Enter")
+        {
+            await OnCommandEnter.InvokeAsync(terminalEventArgs);
+        }
+        else
+        {
+            await OnCommandKeyDown.InvokeAsync(terminalEventArgs);
+        }
+
+    }
+
+    private async Task _answerKeyDown(TerminalInputEventArgs eventArgs)
+    {
+        var terminalEventArgs = new TerminalEventArgs(this, eventArgs.InputValue, eventArgs, _currentParagraph);
+
+        if (eventArgs.KeyboardEventArgs.Key == "Enter")
+        {
+            await OnAnswerEnter.InvokeAsync(terminalEventArgs);
+        }
+        else
+        {
+            await OnAnswerKeyDown.InvokeAsync(terminalEventArgs);
+        }
+
+    }
+
+
+
+    private List<TerminalParagraph> _paragraphs = new List<TerminalParagraph>();
+
+    //请求输入框
+    private TerminalInput _answerInput;
+
+    //命令输入框
+    private TerminalInput _commandInput;
+
+    private CommandPrompt _template_prompt = new CommandPrompt();
+
+    private TerminalParagraph _currentParagraph;
+
+    private void _foucs()
+    {
+        if (_commandInput is not null)
+        {
+            _commandInput.Focus();
+        }
+        else if (_answerInput is not null)
+        {
+            _answerInput.Focus();
+        }
+
+    }
+
+
+
+}
