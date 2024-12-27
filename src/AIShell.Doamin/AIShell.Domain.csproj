@@ -9,6 +9,7 @@
     <PackageReference Include="AntDesign.Charts" Version="0.5.6" />
     <PackageReference Include="AntDesign.ProLayout" Version="1.0.1" />
     <PackageReference Include="BlazorComponents.Terminal" Version="0.6.0" />
+    <PackageReference Include="SSH.NET" Version="2024.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
 
     <PackageReference Include="AutoMapper" Version="8.1.0" />

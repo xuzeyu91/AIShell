@@ -3,6 +3,8 @@ using AntDesign;
 using BlazorComponents.Terminal;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Identity.Client;
+using Renci.SshNet;
+using ConnectionInfo = Renci.SshNet.ConnectionInfo;
 
 namespace AIShell.Pages.Shell
 {
@@ -10,12 +12,45 @@ namespace AIShell.Pages.Shell
     {
         [Parameter] public string Id { get; set; }
 
+        [Inject] protected ISessions_Repositories _sessions_Repositories { get; set; }
+        [Inject] protected MessageService? Message { get; set; }
+
+        private Sessions _sessionModel = new Sessions();
+
         private BlazorTerminal blazorTerminal = default;
         private TerminalParagraph para;
+
+        //ssh客户端
+        private SshClient _sshClient;
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-          
+            _sessionModel = await _sessions_Repositories.GetFirstAsync(p => p.Id == Id);
+
+            var connectionInfo = new ConnectionInfo(
+               _sessionModel.Host,
+               int.Parse(_sessionModel.Port),
+               _sessionModel.User,
+               new PasswordAuthenticationMethod(_sessionModel.User, _sessionModel.Password)
+           );
+
+            _sshClient = new SshClient(connectionInfo);
+
+            try
+            {
+                _sshClient.Connect();
+                if (_sshClient.IsConnected)
+                {
+                    // SSH 连接成功，您可以在此执行命令
+                    var cmd = _sshClient.CreateCommand("ls -la");
+                    var result = cmd.Execute();
+  
+                }
+            }
+            catch (Exception ex)
+            {
+                _ = Message.Error($"SSH 连接失败: {ex.Message}", 2);
+            }
         }
         protected override void OnAfterRender(bool firstRender)
         {
@@ -42,8 +77,8 @@ namespace AIShell.Pages.Shell
                 //
                 blazorTerminal.ConfigPrompt(new CommandPrompt()
                 {
-                    Name = "aishell",
-                    Host = "root",
+                    Name = _sessionModel.Host,
+                    Host = _sessionModel.User,
                     Path = "~",
                     Separator1 = '@',
                     Separator2 = ':',
@@ -64,50 +99,67 @@ namespace AIShell.Pages.Shell
                 return;
             }
 
-
-            switch (evenArgs.InputValue)
+            try
             {
-                case "password":
-                    blazorTerminal.RespondText("please input password", needInput: true, isPassword: true);
-                    break;
-                case "progress":
-                    var par1 = blazorTerminal.RespondText("download 00% :", false, false);
-                    await _progress(par1);
-                    blazorTerminal.Return();
-                    break;
-                case "lines":
-                    var par = blazorTerminal.RespondText("line1", false, false);
-                    par.AddTextLine("line2");
-                    par.AddTextLine("line3");
-                    par.AddTextLine("line4");
-                    par.AddTextLine("line5");
-                    blazorTerminal.Return();
-                    break;
-                case "clear":
-                    blazorTerminal.Clear();
-                    break;
-                case "ask":
-                    blazorTerminal.RespondText(" continue process? y/n ", needInput: true);
-                    break;
-                case "html":
-                    blazorTerminal.RespondHtml("<a href='/'>this is html response</a>", true);
-                    break;
-                case "text":
-                    blazorTerminal.RespondText("text responese", true);
-                    break;
-                case "image":
-                    blazorTerminal.RespondImage("icon-192.png", autoReturn: true);
-                    break;
-                case "help":
-                case "?":
-                    blazorTerminal.RespondText("try ask,html,text,help,? commands for demonstration", true);
-                    break;
-                default:
-                    blazorTerminal.RespondText("unknown command", true);
-                    break;
+
+                if (!_sshClient.IsConnected)
+                {
+                    _sshClient.Connect();
+                }
+                // SSH 连接成功，您可以在此执行命令
+                var cmd = _sshClient.CreateCommand(evenArgs.InputValue);
+                var result = cmd.Execute();
+                blazorTerminal.RespondText(result, true);
+
+            }
+            catch (Exception ex)
+            {
+                _ = Message.Error($"SSH 连接失败: {ex.Message}", 2);
             }
 
+            //switch (evenArgs.InputValue)
+            //{
+            //    case "password":
+            //        blazorTerminal.RespondText("please input password", needInput: true, isPassword: true);
+            //        break;
+            //    case "progress":
+            //        var par1 = blazorTerminal.RespondText("download 00% :", false, false);
+            //        await _progress(par1);
+            //        blazorTerminal.Return();
+            //        break;
+            //    case "lines":
+            //        var par = blazorTerminal.RespondText("line1", false, false);
+            //        par.AddTextLine("line2");
+            //        par.AddTextLine("line3");
+            //        par.AddTextLine("line4");
+            //        par.AddTextLine("line5");
+            //        blazorTerminal.Return();
+            //        break;
+            //    case "clear":
+            //        blazorTerminal.Clear();
+            //        break;
+            //    case "ask":
+            //        blazorTerminal.RespondText(" continue process? y/n ", needInput: true);
+            //        break;
+            //    case "html":
+            //        blazorTerminal.RespondHtml("<a href='/'>this is html response</a>", true);
+            //        break;
+            //    case "text":
+            //        blazorTerminal.RespondText("text responese", true);
+            //        break;
+            //    case "image":
+            //        blazorTerminal.RespondImage("icon-192.png", autoReturn: true);
+            //        break;
+            //    case "help":
+            //    case "?":
+            //        blazorTerminal.RespondText("try ask,html,text,help,? commands for demonstration", true);
+            //        break;
+            //    default:
+            //        blazorTerminal.RespondText("unknown command", true);
+            //        break;
         }
+
+        
 
         async void answerEnter(TerminalEventArgs evenArgs)
         {

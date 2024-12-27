@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.2" />
+    <PackageReference Include="SSH.NET" Version="2024.2.0" />
     <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
   </ItemGroup>
 
