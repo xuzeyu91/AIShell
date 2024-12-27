@@ -8,7 +8,7 @@ using ConnectionInfo = Renci.SshNet.ConnectionInfo;
 
 namespace AIShell.Pages.Shell
 {
-    public partial class ShellPage
+    public partial class ShellPage : IDisposable
     {
         [Parameter] public string Id { get; set; }
 
@@ -101,65 +101,31 @@ namespace AIShell.Pages.Shell
 
             try
             {
-
                 if (!_sshClient.IsConnected)
                 {
                     _sshClient.Connect();
                 }
                 // SSH 连接成功，您可以在此执行命令
-                var cmd = _sshClient.CreateCommand(evenArgs.InputValue);
+                var cmd = _sshClient.CreateCommand($"echo {_sessionModel.Password} | sudo -S {evenArgs.InputValue}");
                 var result = cmd.Execute();
-                blazorTerminal.RespondText(result, true);
+                var error = cmd.Error; // 捕获标准错误输出
+                var exitStatus = cmd.ExitStatus; // 获取命令的退出状态码
 
+                if (exitStatus == 0)
+                {
+                    blazorTerminal.RespondText(result, true);
+                }
+                else
+                {
+                    blazorTerminal.RespondText($"命令执行失败: {error}", true);
+                }
             }
             catch (Exception ex)
             {
                 _ = Message.Error($"SSH 连接失败: {ex.Message}", 2);
             }
-
-            //switch (evenArgs.InputValue)
-            //{
-            //    case "password":
-            //        blazorTerminal.RespondText("please input password", needInput: true, isPassword: true);
-            //        break;
-            //    case "progress":
-            //        var par1 = blazorTerminal.RespondText("download 00% :", false, false);
-            //        await _progress(par1);
-            //        blazorTerminal.Return();
-            //        break;
-            //    case "lines":
-            //        var par = blazorTerminal.RespondText("line1", false, false);
-            //        par.AddTextLine("line2");
-            //        par.AddTextLine("line3");
-            //        par.AddTextLine("line4");
-            //        par.AddTextLine("line5");
-            //        blazorTerminal.Return();
-            //        break;
-            //    case "clear":
-            //        blazorTerminal.Clear();
-            //        break;
-            //    case "ask":
-            //        blazorTerminal.RespondText(" continue process? y/n ", needInput: true);
-            //        break;
-            //    case "html":
-            //        blazorTerminal.RespondHtml("<a href='/'>this is html response</a>", true);
-            //        break;
-            //    case "text":
-            //        blazorTerminal.RespondText("text responese", true);
-            //        break;
-            //    case "image":
-            //        blazorTerminal.RespondImage("icon-192.png", autoReturn: true);
-            //        break;
-            //    case "help":
-            //    case "?":
-            //        blazorTerminal.RespondText("try ask,html,text,help,? commands for demonstration", true);
-            //        break;
-            //    default:
-            //        blazorTerminal.RespondText("unknown command", true);
-            //        break;
         }
 
-        
 
         async void answerEnter(TerminalEventArgs evenArgs)
         {
@@ -182,7 +148,18 @@ namespace AIShell.Pages.Shell
                 i++;
             }
         }
-
+        public void Dispose()
+        {
+            if (_sshClient != null)
+            {
+                if (_sshClient.IsConnected)
+                {
+                    _sshClient.Disconnect();
+                }
+                _sshClient.Dispose();
+            }
+            GC.SuppressFinalize(this);
+        }
     }
 }
     
