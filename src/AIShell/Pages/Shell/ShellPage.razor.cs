@@ -1,8 +1,11 @@
-﻿using AIShell.Domain.Repositories;
+﻿using AIShell.Domain.Common.Utils;
+using AIShell.Domain.Domain.Model.Enum;
+using AIShell.Domain.Repositories;
 using AntDesign;
 using BlazorComponents.Terminal;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Identity.Client;
+using Microsoft.SemanticKernel;
 using Renci.SshNet;
 using ConnectionInfo = Renci.SshNet.ConnectionInfo;
 
@@ -13,9 +16,13 @@ namespace AIShell.Pages.Shell
         [Parameter] public string Id { get; set; }
 
         [Inject] protected ISessions_Repositories _sessions_Repositories { get; set; }
+        [Inject] protected IAIModels_Repositories _aIModels_Repositories { get; set; }
         [Inject] protected MessageService? Message { get; set; }
 
+        Kernel _kernel;
+
         private Sessions _sessionModel = new Sessions();
+        private AIModels _aiModel = new AIModels();
 
         private BlazorTerminal blazorTerminal = default;
         private TerminalParagraph para;
@@ -27,6 +34,8 @@ namespace AIShell.Pages.Shell
             await base.OnInitializedAsync();
             _sessionModel = await _sessions_Repositories.GetFirstAsync(p => p.Id == Id);
 
+            _aiModel = _aIModels_Repositories.GetFirst(p => true);
+
             var connectionInfo = new ConnectionInfo(
                _sessionModel.Host,
                int.Parse(_sessionModel.Port),
@@ -36,6 +45,8 @@ namespace AIShell.Pages.Shell
 
             _sshClient = new SshClient(connectionInfo);
 
+            InitKernel();
+
             try
             {
                 _sshClient.Connect();
@@ -44,7 +55,7 @@ namespace AIShell.Pages.Shell
                     // SSH 连接成功，您可以在此执行命令
                     var cmd = _sshClient.CreateCommand("ls -la");
                     var result = cmd.Execute();
-  
+
                 }
             }
             catch (Exception ex)
@@ -52,6 +63,30 @@ namespace AIShell.Pages.Shell
                 _ = Message.Error($"SSH 连接失败: {ex.Message}", 2);
             }
         }
+
+        private void InitKernel()
+        {
+            var builder = Kernel.CreateBuilder();
+            var httpClient = OpenAIHttpClientHandlerUtil.GetHttpClient(_aiModel.EndPoint);
+            if (_aiModel.AIType == AIType.OpenAI)
+            {
+                builder.AddOpenAIChatCompletion(
+                   modelId: _aiModel.ModelName,
+                   apiKey: _aiModel.ModelKey,
+               httpClient: httpClient);
+            }
+            else if (_aiModel.AIType == AIType.AzureOpenAI)
+            {
+                builder.AddAzureOpenAIChatCompletion(
+                    deploymentName: _aiModel.ModelName,
+                    apiKey: _aiModel.ModelKey,
+                    endpoint: _aiModel.EndPoint
+                );
+            }
+            _kernel = builder.Build();
+            _kernel.ImportPluginFromPromptDirectory(System.IO.Path.Combine(RepoFiles.SamplePluginsPath(), "Linux"));
+        }
+
         protected override void OnAfterRender(bool firstRender)
         {
             base.OnAfterRender(firstRender);
@@ -101,31 +136,35 @@ namespace AIShell.Pages.Shell
 
             try
             {
-                switch (evenArgs.InputValue)
-                {
-                    case "/ai":
-                        
-                        break;
-                    default:
-                        if (!_sshClient.IsConnected)
-                        {
-                            _sshClient.Connect();
-                        }
-                        // SSH 连接成功，您可以在此执行命令
-                        var cmd = _sshClient.CreateCommand($"echo {_sessionModel.Password} | sudo -S {evenArgs.InputValue}");
-                        var result = cmd.Execute();
-                        var error = cmd.Error; // 捕获标准错误输出
-                        var exitStatus = cmd.ExitStatus; // 获取命令的退出状态码
 
-                        if (exitStatus == 0)
-                        {
-                            blazorTerminal.RespondText(result, true);
-                        }
-                        else
-                        {
-                            blazorTerminal.RespondText($"命令执行失败: {error}", true);
-                        }
-                        break;
+                if (evenArgs.InputValue.ToLower().StartsWith("/ai:"))
+                {
+                   
+                    KernelFunction fun = _kernel.Plugins.GetFunction("Linux", "Command");
+                    var command = await _kernel.InvokeAsync(function: fun, new KernelArguments() { ["input"] = evenArgs.InputValue.Replace("/ai:", "") });
+                    var result = command.GetValue<string>().ConvertToString();
+                    blazorTerminal.RespondText(result, true);
+                }
+                else
+                {
+                    if (!_sshClient.IsConnected)
+                    {
+                        _sshClient.Connect();
+                    }
+                    // SSH 连接成功，您可以在此执行命令
+                    var cmd = _sshClient.CreateCommand($"echo {_sessionModel.Password} | sudo -S {evenArgs.InputValue}");
+                    var result = cmd.Execute();
+                    var error = cmd.Error; // 捕获标准错误输出
+                    var exitStatus = cmd.ExitStatus; // 获取命令的退出状态码
+
+                    if (exitStatus == 0)
+                    {
+                        blazorTerminal.RespondText(result, true);
+                    }
+                    else
+                    {
+                        blazorTerminal.RespondText($"命令执行失败: {error}", true);
+                    }
                 }
             }
             catch (Exception ex)

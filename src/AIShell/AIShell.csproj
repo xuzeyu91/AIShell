@@ -27,5 +27,9 @@
   <ItemGroup>
     <Folder Include="Services\" />
   </ItemGroup>
-  
+  <ItemGroup>
+    <None Update="plugins\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

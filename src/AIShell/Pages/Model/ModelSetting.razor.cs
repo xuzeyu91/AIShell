@@ -28,9 +28,9 @@ namespace AIShell.Pages.Model
             var model=_aIModels_Repositories.GetFirst(p=>true);
             if (model.IsNull())
             {
-                if (_aiModel.AIType == AIType.AzureOpenAI && string.IsNullOrEmpty(_aiModel.EndPoint))
+                if (string.IsNullOrEmpty(_aiModel.EndPoint))
                 {
-                    _ = Message.Error("Azure OpenAI 必须填写EndPoint", 2);
+                    _ = Message.Error("必须填写EndPoint", 2);
                 }
                 //新增
                 _aiModel.Id = "001";
@@ -39,6 +39,7 @@ namespace AIShell.Pages.Model
             }
             else 
             {
+                model.AIType = _aiModel.AIType;
                 model.ModelKey = _aiModel.ModelKey;
                 model.ModelName = _aiModel.ModelName;
                 model.EndPoint = _aiModel.EndPoint;

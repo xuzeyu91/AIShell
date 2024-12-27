@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "description": "命令行助手",
+  "execution_settings": {
+    "default": {
+      "temperature": 0.0
+    }
+  }
+}
