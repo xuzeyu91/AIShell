@@ -101,23 +101,31 @@ namespace AIShell.Pages.Shell
 
             try
             {
-                if (!_sshClient.IsConnected)
+                switch (evenArgs.InputValue)
                 {
-                    _sshClient.Connect();
-                }
-                // SSH 连接成功，您可以在此执行命令
-                var cmd = _sshClient.CreateCommand($"echo {_sessionModel.Password} | sudo -S {evenArgs.InputValue}");
-                var result = cmd.Execute();
-                var error = cmd.Error; // 捕获标准错误输出
-                var exitStatus = cmd.ExitStatus; // 获取命令的退出状态码
+                    case "/ai":
+                        
+                        break;
+                    default:
+                        if (!_sshClient.IsConnected)
+                        {
+                            _sshClient.Connect();
+                        }
+                        // SSH 连接成功，您可以在此执行命令
+                        var cmd = _sshClient.CreateCommand($"echo {_sessionModel.Password} | sudo -S {evenArgs.InputValue}");
+                        var result = cmd.Execute();
+                        var error = cmd.Error; // 捕获标准错误输出
+                        var exitStatus = cmd.ExitStatus; // 获取命令的退出状态码
 
-                if (exitStatus == 0)
-                {
-                    blazorTerminal.RespondText(result, true);
-                }
-                else
-                {
-                    blazorTerminal.RespondText($"命令执行失败: {error}", true);
+                        if (exitStatus == 0)
+                        {
+                            blazorTerminal.RespondText(result, true);
+                        }
+                        else
+                        {
+                            blazorTerminal.RespondText($"命令执行失败: {error}", true);
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -125,7 +133,6 @@ namespace AIShell.Pages.Shell
                 _ = Message.Error($"SSH 连接失败: {ex.Message}", 2);
             }
         }
-
 
         async void answerEnter(TerminalEventArgs evenArgs)
         {
