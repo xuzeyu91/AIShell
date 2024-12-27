@@ -1,5 +1,73 @@
-﻿<h3>SessionList</h3>
+﻿@namespace AIShell.Pages.Session
+@using Domain.Domain.Model.Enum
+@using AIShell.Domain.Repositories
+@page "/session/list"
+
+<PageContainer Title="会话列表">
+    <Content>
+        <div style="text-align: center;">
+            <Search Placeholder="输入回车"
+                    EnterButton="@("搜索")"
+                    Style="max-width: 522px; width: 100%;"
+                    OnSearch="Search" />
+        </div>
+    </Content>
+    <ChildContent>
+        <div class="cardList">
+            <AntList TItem="Sessions"
+                     DataSource="_data"
+                     ItemLayout="ListItemLayout.Horizontal"
+                     Grid="LayoutModel._listGridType">
+                <ListItem NoFlex>
+                    @if (string.IsNullOrEmpty(context.Id))
+                    {
+                        <Button Type="dashed" class="newButton" @onclick="NavigateToAddSession">
+                            <Icon Type="plus" Theme="outline" /> 创建会话
+                        </Button>
+                    }
+                    else
+                    {
+                        <Card Hoverable Bordered Class="card" Actions="@(new[] {
+                            update(()=> Update(context.Id)) ,
+                            delete(async ()=>await Delete(context.Id)) ,
+
+                             })" Style="max-height:247px;">
+                            <CardMeta>
+                                <AvatarTemplate>
+                                    <img src="/assets/app.png" style="width:32px;height:32px;" />
+                                </AvatarTemplate>
+                                <TitleTemplate>
+                                    <a>@context.Name</a>
+                                </TitleTemplate>
+                                <DescriptionTemplate>
+                                    <Tag Color="@PresetColor.Volcano.ToString()">@context.Host</Tag>
+                                </DescriptionTemplate>
+                            </CardMeta>
+                        </Card>
+                    }
+                </ListItem>
+            </AntList>
+        </div>
+    </ChildContent>
+</PageContainer>
+
+<style>
+    .ant-typography {
+        overflow: hidden; /* 防止内容溢出 */
+        text-overflow: ellipsis; /* 超出部分显示省略号 */
+        white-space: nowrap; /* 防止内容换行 */
+    }
+
+    .ant-tag {
+        margin-top: 8px;
+    }
+
+    div.ant-typography, .ant-typography p {
+        margin-bottom: 0;
+    }
+</style>
 
 @code {
-
+    RenderFragment update(Action clickAction) =>@<a key="info" @onclick="@clickAction">修改</a>;
+    RenderFragment delete(Action clickAction) => @<a key="delete" @onclick="@clickAction">删除</a> ;
 }

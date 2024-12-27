@@ -6,9 +6,15 @@
     "icon": "profile"
   },
   {
+    "path": "/session/list",
+    "name": "会话列表",
+    "key": "session.list",
+    "icon": "windows"
+  },
+  {
     "path": "/model",
     "name": "模型设置",
     "key": "model",
-    "icon": "appstore-add"  
+    "icon": "appstore-add"
   }
 ]
