@@ -1,0 +1,55 @@
+﻿@namespace AIShell.Pages.Session
+
+@page "/session/add"
+@page "/session/add/{Id}"
+
+
+<PageContainer Title="新增会话">
+    <ChildContent>
+        <Card>
+            <Form Model="@_sessionModel"
+                  Style="margin-top: 8px;"
+                  OnFinish="HandleSubmit">
+                <FormItem Label="会话名称" LabelCol="LayoutModel._formItemLayout.LabelCol" WrapperCol="LayoutModel._formItemLayout.WrapperCol">
+                    <Input Placeholder="请输入会话名称" @bind-Value="@context.Name" />
+                </FormItem>
+                <FormItem Label="地址" LabelCol="LayoutModel._formItemLayout.LabelCol" WrapperCol="LayoutModel._formItemLayout.WrapperCol">
+                    <Input Placeholder="请输入地址" @bind-Value="@context.Host" />
+                </FormItem>
+                <FormItem Label="端口" LabelCol="LayoutModel._formItemLayout.LabelCol" WrapperCol="LayoutModel._formItemLayout.WrapperCol">
+                    <Input Placeholder="请输入端口" @bind-Value="@context.Port" />
+                </FormItem>
+                <FormItem Label="账号" LabelCol="LayoutModel._formItemLayout.LabelCol" WrapperCol="LayoutModel._formItemLayout.WrapperCol">
+                    <Input Placeholder="请输入账号" @bind-Value="@context.User" />
+                </FormItem>
+                <FormItem Label="密码" LabelCol="LayoutModel._formItemLayout.LabelCol" WrapperCol="LayoutModel._formItemLayout.WrapperCol">
+                    <InputPassword Placeholder="请输入密码" @bind-Value="@context.Password" AutoComplete="false" />
+                </FormItem>
+                <FormItem Label=" " Style="margin-top:32px" WrapperCol="LayoutModel._submitFormLayout.WrapperCol">
+                    <Button Type="primary" HtmlType="submit">
+                        保存
+                    </Button>
+                </FormItem>
+            </Form>
+        </Card>
+    </ChildContent>
+</PageContainer>
+<style>
+    .steps-content {
+        margin-top: 16px;
+        border: 1px dashed #e9e9e9;
+        border-radius: 6px;
+        background-color: #fafafa;
+        min-height: 200px;
+        text-align: center;
+        padding-top: 80px;
+    }
+
+    .steps-action {
+        margin-top: 24px;
+    }
+
+</style>
+@code {
+
+}

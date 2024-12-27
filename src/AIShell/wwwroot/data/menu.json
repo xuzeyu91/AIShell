@@ -1,11 +1,5 @@
 ﻿[
   {
-    "path": "/shell",
-    "name": "Shell",
-    "key": "shell",
-    "icon": "profile"
-  },
-  {
     "path": "/session/list",
     "name": "会话列表",
     "key": "session.list",

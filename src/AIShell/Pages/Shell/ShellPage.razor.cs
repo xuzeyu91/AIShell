@@ -1,12 +1,15 @@
 ﻿using AIShell.Domain.Repositories;
 using AntDesign;
 using BlazorComponents.Terminal;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Identity.Client;
 
 namespace AIShell.Pages.Shell
 {
     public partial class ShellPage
     {
+        [Parameter] public string Id { get; set; }
+
         private BlazorTerminal blazorTerminal = default;
         private TerminalParagraph para;
         protected override async Task OnInitializedAsync()

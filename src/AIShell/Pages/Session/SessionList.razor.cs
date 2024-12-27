@@ -41,6 +41,11 @@ namespace AIShell.Pages.Session
             NavigationManager.NavigateTo("/session/add");
         }
 
+        private void Connect(string id)
+        {
+            NavigationManager.NavigateTo($"/shell/{id}");
+        }
+
         private void Update(string id)
         {
             NavigationManager.NavigateTo($"/app/add/{id}");

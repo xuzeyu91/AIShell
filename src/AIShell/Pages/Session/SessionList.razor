@@ -3,6 +3,7 @@
 @using AIShell.Domain.Repositories
 @page "/session/list"
 
+
 <PageContainer Title="会话列表">
     <Content>
         <div style="text-align: center;">
@@ -28,13 +29,14 @@
                     else
                     {
                         <Card Hoverable Bordered Class="card" Actions="@(new[] {
-                            update(()=> Update(context.Id)) ,
+                            connect(()=> Connect(context.Id)),
+                            update(()=> Update(context.Id)) ,                        
                             delete(async ()=>await Delete(context.Id)) ,
 
                              })" Style="max-height:247px;">
                             <CardMeta>
                                 <AvatarTemplate>
-                                    <img src="/assets/app.png" style="width:32px;height:32px;" />
+                                    <Icon Type="windows" Theme="outline" />
                                 </AvatarTemplate>
                                 <TitleTemplate>
                                     <a>@context.Name</a>
@@ -68,6 +70,7 @@
 </style>
 
 @code {
+    RenderFragment connect(Action clickAction) =>@<a key="connect" @onclick="@clickAction">连接</a>;
     RenderFragment update(Action clickAction) =>@<a key="info" @onclick="@clickAction">修改</a>;
     RenderFragment delete(Action clickAction) => @<a key="delete" @onclick="@clickAction">删除</a> ;
 }
